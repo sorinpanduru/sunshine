@@ -13,4 +13,11 @@
     <string name="pref_location_key" translatable="false">location</string>
     <string name="pref_location_default" translatable="false">Bucharest</string>
 
+    <string name="pref_tempunit_label">Temperature Unit</string>
+    <string name="pref_tempunit_key" translatable="false">tempunit</string>
+    <string name="pref_tempunit_default" translatable="false">metric</string>
+
+    <string name="pref_tempunit_metric" translatable="false">metric</string>
+    <string name="pref_tempunit_imperial" translatable="false">imperial</string>
+
 </resources>

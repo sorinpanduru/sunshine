@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="tempunit">
+        <item>metric</item>
+        <item>imperial</item>
+    </string-array>
+    <string-array name="tempunitDesc">
+        <item>Metric Units</item>
+        <item>Imperial Units</item>
+    </string-array>
+
+</resources>

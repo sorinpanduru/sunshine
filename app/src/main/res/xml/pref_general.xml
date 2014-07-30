@@ -11,4 +11,10 @@
         android:inputType="text"
         android:singleLine="true" />
 
+    <ListPreference
+        android:key="@string/pref_tempunit_key"
+        android:title="@string/pref_tempunit_label"
+        android:entries="@array/tempunitDesc"
+        android:entryValues="@array/tempunit"/>
+
 </PreferenceScreen>

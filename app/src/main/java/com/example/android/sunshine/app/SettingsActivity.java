@@ -6,12 +6,15 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import com.example.android.sunshine.app.R;
 
 public class SettingsActivity extends PreferenceActivity
         implements Preference.OnPreferenceChangeListener{
+
+    public static final String LOG_TAG = SettingsActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,6 +23,7 @@ public class SettingsActivity extends PreferenceActivity
         addPreferencesFromResource(R.xml.pref_general);
 
         bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_location_key)));
+        bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_tempunit_key)));
     }
 
 
@@ -59,11 +63,11 @@ public class SettingsActivity extends PreferenceActivity
         if (preference instanceof ListPreference) {
             ListPreference listPreference = (ListPreference) preference;
             int prefIndex = listPreference.findIndexOfValue(stringValue);
-            if (prefIndex >= 0){
+            if (prefIndex >= 0) {
                 preference.setSummary(listPreference.getEntries()[prefIndex]);
-            }else{
-                preference.setSummary(stringValue);
             }
+        }else{
+            preference.setSummary(stringValue);
         }
         return true;
     }
