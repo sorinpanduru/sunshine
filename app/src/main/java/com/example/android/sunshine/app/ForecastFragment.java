@@ -1,9 +1,12 @@
 package com.example.android.sunshine.app;
 
 import android.app.Fragment;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -30,7 +33,7 @@ import java.util.ArrayList;
  * A placeholder fragment containing a simple view.
  */
 public class ForecastFragment extends Fragment {
-
+    public final String LOG_TAG = ForecastFragment.class.getSimpleName();
     private ArrayAdapter<String> mForecastAdapter;
 
     public ForecastFragment() {
@@ -80,12 +83,41 @@ public class ForecastFragment extends Fragment {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
+
+        Log.d(LOG_TAG, "Button Id: " + String.valueOf(id));
+
         if (id == R.id.action_refresh) {
-            FetchWeatherTask weatherTask = new FetchWeatherTask();
-            weatherTask.execute();
+            Log.d(LOG_TAG, "Clicked Refresh in ForecastFragment");
+
+            updateWeather();
             return true;
         }
+
+        if (id == R.id.action_settings) {
+            Log.d(LOG_TAG, "Clicked Settings in ForecastFragment");
+            Intent settingsIntent = new Intent(getActivity(), SettingsActivity.class);
+            startActivity(settingsIntent);
+            return true;
+        }
+
         return super.onOptionsItemSelected(item);
+    }
+
+    private void updateWeather()
+    {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String pref_key = getString(R.string.pref_location_key);
+        String location = preferences.getString(pref_key, getString(R.string.pref_location_default));
+
+
+        FetchWeatherTask weatherTask = new FetchWeatherTask();
+        weatherTask.execute(location);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        updateWeather();
     }
 
     public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
@@ -99,7 +131,8 @@ public class ForecastFragment extends Fragment {
 
             WeatherDataParser weatherDataParser = new WeatherDataParser();
             int numDays = 7;
-            String city = "Bucharest";
+            Log.d(LOG_TAG, params.toString());
+            String location = params[0];
 
             // Will contain the raw JSON response as a string.
             String forecastJsonStr = null;
@@ -108,7 +141,7 @@ public class ForecastFragment extends Fragment {
                 // Construct the URL for the OpenWeatherMap query
                 // Possible parameters are avaiable at OWM's forecast API page, at
                 // http://openweathermap.org/API#forecast
-                URL url = new URL("http://api.openweathermap.org/data/2.5/forecast/daily?q=" + city + "&mode=json&units=metric&cnt=" + numDays);
+                URL url = new URL("http://api.openweathermap.org/data/2.5/forecast/daily?q=" + location + "&mode=json&units=metric&cnt=" + numDays);
 
                 // Create the request to OpenWeatherMap, and open the connection
                 urlConnection = (HttpURLConnection) url.openConnection();
