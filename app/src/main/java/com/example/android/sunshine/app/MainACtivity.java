@@ -3,6 +3,7 @@ package com.example.android.sunshine.app;
 import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,6 +17,8 @@ import java.util.ArrayList;
 
 public class MainACtivity extends Activity {
 
+    private static final String LOG_TAG = MainACtivity.class.getSimpleName();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -25,8 +28,39 @@ public class MainACtivity extends Activity {
                     .add(R.id.container, new ForecastFragment())
                     .commit();
         }
+        Log.d(LOG_TAG, "onCreate");
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d(LOG_TAG, "onDestroy");
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d(LOG_TAG, "onResume");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d(LOG_TAG, "onPause");
+    }
+
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Log.d(LOG_TAG, "onStart");
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.d(LOG_TAG, "onStop");
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
