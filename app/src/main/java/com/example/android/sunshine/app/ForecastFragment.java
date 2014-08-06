@@ -4,6 +4,7 @@ import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -94,6 +95,13 @@ public class ForecastFragment extends Fragment {
             return true;
         }
 
+        if (id == R.id.action_viewOnMap) {
+            Log.d(LOG_TAG, "Clicked View on Map in ForecastFragment");
+
+            viewOnMap();
+            return true;
+        }
+
         if (id == R.id.action_settings) {
             Log.d(LOG_TAG, "Clicked Settings in ForecastFragment");
             Intent settingsIntent = new Intent(getActivity(), SettingsActivity.class);
@@ -113,6 +121,22 @@ public class ForecastFragment extends Fragment {
 
         FetchWeatherTask weatherTask = new FetchWeatherTask();
         weatherTask.execute(location);
+    }
+
+    private void viewOnMap()
+    {
+        // get pref location
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String pref_key = getString(R.string.pref_location_key);
+        String location = preferences.getString(pref_key, getString(R.string.pref_location_default));
+        String location_uri = "https://www.google.com/maps/place/" + location;
+        // fire up intent
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        Uri geolocation = Uri.parse(location_uri);
+        intent.setData(geolocation);
+        if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
+            startActivity(intent);
+        }
     }
 
     @Override

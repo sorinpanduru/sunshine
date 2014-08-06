@@ -10,6 +10,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ShareActionProvider;
 import android.widget.TextView;
 
 import com.example.android.sunshine.app.R;
@@ -17,6 +18,8 @@ import com.example.android.sunshine.app.R;
 public class DetailViewFragment extends Fragment {
 
     public final String LOG_TAG = DetailViewFragment.class.getSimpleName();
+    private String mForecast;
+    private ShareActionProvider mShareActionProvider;
 
     public DetailViewFragment() {
     }
@@ -32,9 +35,9 @@ public class DetailViewFragment extends Fragment {
         Intent intent = getActivity().getIntent();
         if(intent != null && intent.hasExtra(Intent.EXTRA_TEXT))
         {
-            String forecast = intent.getStringExtra(Intent.EXTRA_TEXT);
+            mForecast = intent.getStringExtra(Intent.EXTRA_TEXT);
             ((TextView) rootView.findViewById(R.id.detail_text))
-                    .setText(forecast);
+                    .setText(mForecast);
         }
 
         return rootView;
@@ -44,6 +47,17 @@ public class DetailViewFragment extends Fragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         // Inflate the menu; this adds items to the action bar if it is present.
         inflater.inflate(R.menu.detailviewfragment, menu);
+        mShareActionProvider = (ShareActionProvider) menu.findItem(R.id.action_share)
+                .getActionProvider();
+        setShareIntent();
+    }
+
+    private void setShareIntent(){
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_TEXT, mForecast + " #SunshineApp");
+        mShareActionProvider.setShareIntent(intent);
+        Log.d(LOG_TAG, "setShareIntent: " + mForecast + " #SunshineApp");
     }
 
     @Override
