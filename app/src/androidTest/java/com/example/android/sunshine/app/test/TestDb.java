@@ -17,6 +17,10 @@ public class TestDb extends AndroidTestCase {
 
     public static final String LOG_TAG = TestDb.class.getSimpleName();
 
+    public static String TEST_CITY_NAME = "North Pole";
+    public static String TEST_LOCATION="99705";
+    public static String TEST_DATE = "20140808";
+
     public void testCreateDb() throws Throwable {
         mContext.deleteDatabase(WeatherDbHelper.DATABASE_NAME);
         SQLiteDatabase db = new WeatherDbHelper(
