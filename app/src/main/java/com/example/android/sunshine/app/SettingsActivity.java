@@ -10,11 +10,13 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import com.example.android.sunshine.app.R;
+import com.example.android.sunshine.app.data.WeatherContract;
 
 public class SettingsActivity extends PreferenceActivity
         implements Preference.OnPreferenceChangeListener{
 
     public static final String LOG_TAG = SettingsActivity.class.getSimpleName();
+    boolean mBindingPreference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,16 +51,31 @@ public class SettingsActivity extends PreferenceActivity
     private void bindPreferenceSummaryToValue(Preference preference) {
         preference.setOnPreferenceChangeListener(this);
 
+        mBindingPreference = true;
+
         onPreferenceChange(preference,
                 PreferenceManager
                     .getDefaultSharedPreferences(preference.getContext())
                     .getString(preference.getKey(), "")
         );
+        mBindingPreference = false;
     }
 
     @Override
     public boolean onPreferenceChange(Preference preference, Object value) {
         String stringValue = value.toString();
+
+        if( !mBindingPreference) {
+            if ( preference.getKey().equals(getString(R.string.pref_location_key)))
+            {
+                FetchWeatherTask weatherTask = new FetchWeatherTask(this);
+                String location = value.toString();
+                weatherTask.execute( location );
+            }else{
+                // notify code that weather may be affected
+                getContentResolver().notifyChange(WeatherContract.WeatherEntry.CONTENT_URI, null);
+            }
+        }
 
         if (preference instanceof ListPreference) {
             ListPreference listPreference = (ListPreference) preference;
