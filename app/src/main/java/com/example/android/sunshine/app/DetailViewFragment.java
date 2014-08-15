@@ -171,7 +171,7 @@ public class DetailViewFragment extends Fragment implements LoaderManager.Loader
 
         int weatherId = data.getInt(data.getColumnIndex(
                 WeatherEntry.COLUMN_WEATHER_ID));
-        mIconView.setImageResource(R.drawable.ic_launcher);
+        mIconView.setImageResource(R.drawable.ic_weather_sunny);
 
         String date = data.getString(data.getColumnIndex(WeatherEntry.COLUMN_DATETEXT));
         String friendlyDateText = Utility.getDayName(getActivity(), date);
