@@ -16,6 +16,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ShareActionProvider;
 import android.widget.TextView;
 
@@ -23,6 +24,8 @@ import com.example.android.sunshine.app.R;
 import com.example.android.sunshine.app.data.WeatherContract;
 import com.example.android.sunshine.app.data.WeatherContract.WeatherEntry;
 import com.example.android.sunshine.app.data.WeatherContract.LocationEntry;
+
+import org.w3c.dom.Text;
 
 public class DetailViewFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -36,6 +39,8 @@ public class DetailViewFragment extends Fragment implements LoaderManager.Loader
     public static final String DATE_KEY = "forecast_date";
     private static final String LOCATION_KEY = "location";
 
+    private String mForecast = "";
+
     private static final int DETAIL_LOADER = 0;
 
     private static final String[] FORECAST_COLUMNS = {
@@ -44,7 +49,23 @@ public class DetailViewFragment extends Fragment implements LoaderManager.Loader
             WeatherEntry.COLUMN_SHORT_DESC,
             WeatherEntry.COLUMN_MAX_TEMP,
             WeatherEntry.COLUMN_MIN_TEMP,
+            WeatherEntry.COLUMN_PRESSURE,
+            WeatherEntry.COLUMN_HUMIDITY,
+            WeatherEntry.COLUMN_WEATHER_ID,
+            WeatherEntry.COLUMN_WIND_SPEED,
+            WeatherEntry.COLUMN_DEGREES,
+            LocationEntry.COLUMN_LOCATION_SETTING
     };
+
+    private ImageView mIconView;
+    private TextView mDateView;
+    private TextView mFriendlyDateView;
+    private TextView mDescriptionView;
+    private TextView mHighTempView;
+    private TextView mLowTempView;
+    private TextView mHumidityView;
+    private TextView mWindView;
+    private TextView mPressureView;
 
     public DetailViewFragment() {
         setHasOptionsMenu(true);
@@ -68,7 +89,18 @@ public class DetailViewFragment extends Fragment implements LoaderManager.Loader
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_detail, container, false);
+
+        View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
+        mIconView = (ImageView) rootView.findViewById(R.id.detail_icon);
+        mDateView = (TextView) rootView.findViewById(R.id.detail_date_textview);
+        mFriendlyDateView = (TextView) rootView.findViewById(R.id.detail_day_textview);
+        mDescriptionView = (TextView) rootView.findViewById(R.id.detail_forecast_textview);
+        mHighTempView = (TextView) rootView.findViewById(R.id.detail_high_textview);
+        mLowTempView = (TextView) rootView.findViewById(R.id.detail_low_textview);
+        mHumidityView = (TextView) rootView.findViewById(R.id.detail_humidity_textview);
+        mWindView = (TextView) rootView.findViewById(R.id.detail_wind_textview);
+        mPressureView  = (TextView) rootView.findViewById(R.id.detail_pressure_textview);
+        return rootView;
     }
 
     @Override
@@ -80,14 +112,18 @@ public class DetailViewFragment extends Fragment implements LoaderManager.Loader
 
         // Get the provider and hold onto it to set/change the share intent.
         mShareActionProvider = (ShareActionProvider) menuItem.getActionProvider();
+
+        Log.d(LOG_TAG, "Forecast String: " + mForecast);
+        Intent shareIntent = createShareForecastIntent(mForecast);
+        mShareActionProvider.setShareIntent(shareIntent);
     }
 
     private Intent createShareForecastIntent(String forecast) {
-        Intent shareIntent = new Intent(Intent.ACTION_SEND);
-        shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+        Intent shareIntent = new Intent();
+        shareIntent.setAction(Intent.ACTION_SEND);
         shareIntent.setType("text/plain");
         shareIntent.putExtra(Intent.EXTRA_TEXT, forecast + FORECAST_SHARE_HASHTAG);
-        Log.d(LOG_TAG, shareIntent.getDataString());
+        Log.d(LOG_TAG, "Returned Intent object");
         return shareIntent;
     }
 
@@ -102,7 +138,6 @@ public class DetailViewFragment extends Fragment implements LoaderManager.Loader
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        Log.v(LOG_TAG, "In onCreateLoader");
         Intent intent = getActivity().getIntent();
         if (intent == null || !intent.hasExtra(DATE_KEY)) {
             return null;
@@ -115,7 +150,6 @@ public class DetailViewFragment extends Fragment implements LoaderManager.Loader
         mLocation = Utility.getPreferredLocation(getActivity());
         Uri weatherForLocationUri = WeatherContract.WeatherEntry.buildWeatherLocationWithDate(
                 mLocation, forecastDate);
-        Log.v(LOG_TAG, weatherForLocationUri.toString());
 
         // Now create and return a CursorLoader that will take care of
         // creating a Cursor for the data being displayed.
@@ -134,33 +168,44 @@ public class DetailViewFragment extends Fragment implements LoaderManager.Loader
         Log.v(LOG_TAG, "In onLoadFinished");
         if (!data.moveToFirst()) { return; }
 
-        String dateString = Utility.formatDate(
-                data.getString(data.getColumnIndex(WeatherEntry.COLUMN_DATETEXT)));
-        ((TextView) getView().findViewById(R.id.detail_date_textview))
-                .setText(dateString);
 
-        String weatherDescription =
-                data.getString(data.getColumnIndex(WeatherEntry.COLUMN_SHORT_DESC));
-        ((TextView) getView().findViewById(R.id.detail_forecast_textview))
-                .setText(weatherDescription);
+        int weatherId = data.getInt(data.getColumnIndex(
+                WeatherEntry.COLUMN_WEATHER_ID));
+        mIconView.setImageResource(R.drawable.ic_launcher);
+
+        String date = data.getString(data.getColumnIndex(WeatherEntry.COLUMN_DATETEXT));
+        String friendlyDateText = Utility.getDayName(getActivity(), date);
+        String dateText = Utility.getFormattedMonthDay(getActivity(), date);
+        mFriendlyDateView.setText(friendlyDateText);
+        mDateView.setText(dateText);
+
+        String description = data.getString(data.getColumnIndex(WeatherEntry.COLUMN_SHORT_DESC));
+        mDescriptionView.setText(description);
+
 
         boolean isMetric = Utility.isMetric(getActivity());
 
-        String high = Utility.formatTemperature(
+        String high = Utility.formatTemperature(getActivity(),
                 data.getDouble(data.getColumnIndex(WeatherEntry.COLUMN_MAX_TEMP)), isMetric);
-        ((TextView) getView().findViewById(R.id.detail_high_textview)).setText(high);
+        mHighTempView.setText(high);
 
-        String low = Utility.formatTemperature(
+        String low = Utility.formatTemperature(getActivity(),
                 data.getDouble(data.getColumnIndex(WeatherEntry.COLUMN_MIN_TEMP)), isMetric);
-        ((TextView) getView().findViewById(R.id.detail_low_textview)).setText(low);
+        mLowTempView.setText(low);
+
+        float humidity = data.getFloat(data.getColumnIndex(WeatherEntry.COLUMN_HUMIDITY));
+        mHumidityView.setText(getActivity().getString(R.string.format_humidity, humidity));
+
+        float windSpeedStr = data.getFloat(data.getColumnIndex(WeatherEntry.COLUMN_WIND_SPEED));
+        float windDirStr = data.getFloat(data.getColumnIndex(WeatherEntry.COLUMN_DEGREES));
+        mWindView.setText(Utility.getFormattedWind(getActivity(), windSpeedStr, windDirStr));
+
+        float pressure = data.getFloat(data.getColumnIndex(WeatherEntry.COLUMN_PRESSURE));
+        mPressureView.setText(getActivity().getString(R.string.format_pressure, pressure));
 
         // We still need this for the share intent
-        String forecast = String.format("%s - %s - %s/%s",
-                dateString, weatherDescription, high, low);
-
-        Log.v(LOG_TAG, "Forecast String: " + forecast);
-        Intent shareIntent = createShareForecastIntent(forecast);
-        mShareActionProvider.setShareIntent(shareIntent);
+        mForecast = String.format("%s - %s - %s/%s",
+                dateText, description, high, low);
     }
 
     @Override
