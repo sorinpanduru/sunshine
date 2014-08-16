@@ -21,13 +21,23 @@ public class DetailActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
+
         if (savedInstanceState == null) {
+            // Create the detail fragment and add it to the activity
+            // using a fragment transaction.
+            String date = getIntent().getStringExtra(DetailViewFragment.DATE_KEY);
+
+            Bundle arguments = new Bundle();
+            arguments.putString(DetailViewFragment.DATE_KEY, date);
+
+            DetailViewFragment fragment = new DetailViewFragment();
+            fragment.setArguments(arguments);
+
             getFragmentManager().beginTransaction()
-                    .add(R.id.container, new DetailViewFragment())
+                    .add(R.id.weather_detail_container, fragment)
                     .commit();
         }
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
