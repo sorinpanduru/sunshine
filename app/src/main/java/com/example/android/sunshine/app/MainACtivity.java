@@ -1,32 +1,27 @@
 package com.example.android.sunshine.app;
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-
-import java.util.ArrayList;
 
 
-public class MainACtivity extends Activity implements ForecastFragment.Callback {
+public class MainActivity extends Activity implements ForecastFragment.Callback {
 
-    private static final String LOG_TAG = MainACtivity.class.getSimpleName();
+    private static final String LOG_TAG = MainActivity.class.getSimpleName();
+    public static final String DETAILFRAGMENT_TAG = "DTFG";
     public boolean mTwoPane;
+    public String mLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mLocation = Utility.getPreferredLocation(this);
         setContentView(R.layout.activity_main_activity);
         if (findViewById(R.id.weather_detail_container) != null) {
             // The detail container view will be present only in the large-screen layouts
@@ -39,7 +34,7 @@ public class MainACtivity extends Activity implements ForecastFragment.Callback 
             // fragment transaction.
             if (savedInstanceState == null) {
                 getFragmentManager().beginTransaction()
-                        .replace(R.id.weather_detail_container, new DetailViewFragment())
+                        .replace(R.id.weather_detail_container, new DetailViewFragment(), DETAILFRAGMENT_TAG)
                         .commit();
             }
         } else {
@@ -116,5 +111,23 @@ public class MainACtivity extends Activity implements ForecastFragment.Callback 
                     .putExtra(DetailViewFragment.DATE_KEY, date);
             startActivity(intent);
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        String location = Utility.getPreferredLocation( this );
+        // update the location in our second pane using the fragment manager
+        ForecastFragment ff = null;
+        if (location != null && !location.equals(mLocation))
+            ff = (ForecastFragment) getFragmentManager().findFragmentById(R.id.fragment_forecast);
+        if ( null != ff ) {
+            ff.onLocationChanged();
+        }
+        DetailViewFragment df = (DetailViewFragment)getFragmentManager().findFragmentByTag(DETAILFRAGMENT_TAG);
+        if (null != df ) {
+            df.onLocationChanged(location);
+        }
+        mLocation = location;
     }
 }

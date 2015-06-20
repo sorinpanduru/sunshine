@@ -2,6 +2,6 @@
 <resources>
 
     <color name="grey">#cccccc</color>
-    <color name="sunshine_light_blue">#ff64c2f4</color>
-
+    <color name="sunshine_light_blue">#ff3F51B5</color>
+    <color name="list_item_today_bg">#ff263238</color>
 </resources>

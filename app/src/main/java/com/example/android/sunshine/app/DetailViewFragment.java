@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ShareActionProvider;
 import android.widget.TextView;
+import android.util.Log;
 
 import com.example.android.sunshine.app.data.WeatherContract;
 import com.example.android.sunshine.app.data.WeatherContract.WeatherEntry;
@@ -24,8 +25,9 @@ import com.example.android.sunshine.app.data.WeatherContract.LocationEntry;
 
 public class DetailViewFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
+    private static final String LOG_TAG = "DetailViewFragment";
     private static final String FORECAST_SHARE_HASHTAG = " #SunshineApp";
-
+    static final String DETAIL_URI = "URI";
     private ShareActionProvider mShareActionProvider;
 
     public static final String DATE_KEY = "forecast_date";
@@ -33,6 +35,7 @@ public class DetailViewFragment extends Fragment implements LoaderManager.Loader
 
     private String mLocation;
     private String mForecast;
+    private Uri mUri;
     private String mDateStr;
 
     private static final int DETAIL_LOADER = 0;
@@ -83,6 +86,7 @@ public class DetailViewFragment extends Fragment implements LoaderManager.Loader
         if (savedInstanceState != null) {
             mLocation = savedInstanceState.getString(LOCATION_KEY);
         }
+        Log.d("arguments: " + arguments, LOG_TAG);
 
         View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
         mIconView = (ImageView) rootView.findViewById(R.id.detail_icon);
@@ -104,6 +108,17 @@ public class DetailViewFragment extends Fragment implements LoaderManager.Loader
         if (arguments != null && arguments.containsKey(DATE_KEY) &&
                 mLocation != null &&
                 !mLocation.equals(Utility.getPreferredLocation(getActivity()))) {
+            getLoaderManager().restartLoader(DETAIL_LOADER, null, this);
+        }
+    }
+
+    void onLocationChanged( String newLocation ) {
+        // replace the uri, since the location has changed
+        Uri uri = mUri;
+        if (null != uri) {
+            String date = WeatherContract.WeatherEntry.getDateFromUri(uri);
+            Uri updatedUri = WeatherContract.WeatherEntry.buildWeatherLocationWithDate(newLocation, date);
+            mUri = updatedUri;
             getLoaderManager().restartLoader(DETAIL_LOADER, null, this);
         }
     }
@@ -224,4 +239,6 @@ public class DetailViewFragment extends Fragment implements LoaderManager.Loader
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) { }
+
+
 }

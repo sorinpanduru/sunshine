@@ -44,7 +44,7 @@ public class ForecastAdapter extends CursorAdapter {
         // Choose the layout type
         int viewType = getItemViewType(cursor.getPosition());
         int layoutId = -1;
-        // TODO: Determine layoutId from viewType
+
         if( viewType == VIEW_TYPE_TODAY)
         {
             layoutId = R.layout.list_item_forecast_today;
@@ -70,7 +70,7 @@ public class ForecastAdapter extends CursorAdapter {
         }else if (getItemViewType(cursor.getPosition()) == VIEW_TYPE_FUTURE_DAY ){
             image = Utility.getIconResourceForWeatherCondition(weatherId);
         }else{
-            image = R.drawable.ic_weather_sunny;
+            image = R.drawable.ic_clear;
         }
 
         viewHolder.iconView.setImageResource(image);

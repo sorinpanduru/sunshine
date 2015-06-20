@@ -7,8 +7,11 @@
     android:background="@drawable/touch_selector"
     android:gravity="center_vertical"
     android:minHeight="?android:attr/listPreferredItemHeight"
-    android:padding="10dp"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    android:padding="0dp"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:clickable="false"
+    android:theme="@style/ForecastListStyle"
+    android:touchscreenBlocksFocus="true">
 
     <ImageView xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="wrap_content"
@@ -29,14 +32,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/list_item_date_textview"
-            android:text="Tomorrow"
             android:layout_row="0"
             android:layout_column="1" />
 
         <TextView xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="wrap_content"
             android:layout_height="39dp"
-            android:text="clear"
             android:id="@+id/list_item_forecast_textview"
             android:layout_row="1"
             android:layout_column="1" />
@@ -54,16 +55,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="right"
-            android:id="@+id/list_item_high_textview"
-            android:text="33" />
-
+            android:id="@+id/list_item_high_textview"/>
 
         <TextView xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="right"
-            android:id="@+id/list_item_low_textview"
-            android:text="22" />
+            android:id="@+id/list_item_low_textview"/>
     </LinearLayout>
 
 </LinearLayout>
